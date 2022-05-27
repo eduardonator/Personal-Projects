@@ -18,10 +18,24 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
+#include <time.h>
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-int ticker = -1;
+//Global variables
+
+double period1 = 0;
+double period2 = 0;
+bool   checkVelocity1 = false;
+bool   checkVelocity2 = false;
+clock_t timeStamp1;
+
+clock_t timeStamp2; 
+
+clock_t timeStamp3;
+
+clock_t timeStamp4
+int ticker1 = -1;
+int ticker2 = -1;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,6 +128,36 @@ int main(void)
 	    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 0);//Right Wheel
 	    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 1);//Right Wheel
 	  }
+	  
+	  /* code to adjust the velocity of both wheels
+	  //need to create period variable, this will be the period both wheel will match
+	  //need to create motorSpeedAlt1 which will be the dutyCycle of motor1 (left motor)
+	   if(period1 > period && checkVelocity1){
+	      motorSpeedAlt1 = motorSpeedAlt1 + 1;
+	      straight(motorSpeedAlt1,motorSpeedAlt2);
+	      checkVelocity1 = false;
+	    }
+	    else if(period1 < period && checkVelocity1){
+	      motorSpeedAlt1 = motorSpeedAlt1 - 1;
+	      straight(motorSpeedAlt1,motorSpeedAlt2);
+	      checkVelocity1 = false;
+	    }
+	    else{
+
+	    }
+	//need to create motorSpeedAlt2 which will be the dutyCycle of motor2 (right motor)
+	    if(period2 > period && checkVelocity2){
+	      motorSpeedAlt2 = motorSpeedAlt2 + 1;
+	      straight(motorSpeedAlt1,motorSpeedAlt2);
+	      checkVelocity2 = false;
+	    }
+	    else if(period2 < period && checkVelocity2){
+	      motorSpeedAlt2 = motorSpeedAlt2 - 1;
+	       straight(motorSpeedAlt1,motorSpeedAlt2);
+	      checkVelocity2 = false;
+	    }
+	  
+	  */
 
 
     /* USER CODE END WHILE */
@@ -370,10 +414,65 @@ static void MX_GPIO_Init(void)
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 
 	if(GPIO_Pin == GPIO_PIN_10){
-		ticker++;
+		//interrupt 1 function
+		ticker1++;
+   		 if((ticker1 % 2) != 0){
+    			  timeStamp1 =  clock();
+   			 }
+   		 else{
+      		 timeStamp2 =  clock();
+    			}
+ 	
+
+  	 if(ticker1 == 1){
+       		 period1 = 30;
+      		}
+     	else if((ticker1 % 2) != 0){
+                   
+		period1 =((double)(timeStamp1 - timeStamp2  ))/ CLOCKS_PER_SEC;
+
+
+      		period1 = period1 * 1000;
+		 checkVelocity1 = true;
+   		 }
+   	 else{
+     		 period1 = ((double)(timeStamp2 - timeStamp1))/ CLOCKS_PER_SEC;
+     		 period1 = period1 * 1000;
+		  checkVelocity1 = true;
+   		 } 
+	
 	}
 	else{
+		// interrupt 2 function
 
+		   ticker2++;
+		    if((ticker2 % 2) != 0){
+		      timeStamp3 =  clock();
+		    }
+		    else{
+		       timeStamp4 =  clock();
+		    }
+		  
+
+		   if(ticker2 == 1){
+			period2 = 30;
+		      }
+		    else if((ticker2 % 2) != 0){
+
+		period2 =((double)(timeStamp3 - timeStamp4  ))/ CLOCKS_PER_SEC;
+
+
+		      period2 = period2 * 1000;  
+		      checkVelocity2 = true;
+		    }
+		    else{
+
+		period2 =((double)(timeStamp4 - timeStamp3  ))/ CLOCKS_PER_SEC;
+
+
+		      period2 = period2 * 1000;  
+		      checkVelocity2 = true;
+		    } 
 	}
 }
 /* USER CODE END 4 */
